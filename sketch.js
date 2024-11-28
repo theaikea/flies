@@ -6,6 +6,7 @@ let soundFiles = [];
 const maxFlies = 50;
 let canvas;
 let isMobile;
+let videoContainer;
 
 function preload() {
   flyImage = loadImage('images/fly.png');
@@ -21,11 +22,23 @@ function preload() {
 function setup() {
   isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   canvas = createCanvas(windowWidth, windowHeight);
+  
+  videoContainer = createDiv();
+  videoContainer.style('pointer-events', 'none');
+  videoContainer.style('position', 'absolute');
+  videoContainer.style('top', '0');
+  videoContainer.style('left', '0');
+  videoContainer.style('width', '100%');
+  videoContainer.style('height', '100%');
+  
   backgroundVideo = createVideo(['images/background.mp4'], videoLoaded);
+  backgroundVideo.parent(videoContainer);
   backgroundVideo.hide();
+  
   document.addEventListener('touchstart', function() {
     if (backgroundVideo) backgroundVideo.play();
   });
+  
   setInterval(addNewImage, 2000);
   canvas.elt.addEventListener('touchstart', function(e) {
     e.preventDefault();
@@ -61,7 +74,7 @@ function draw() {
     fill(255);
     textSize(32);
     textAlign(CENTER, CENTER);
-    text("klik på fluerne...", width/2, height/2);
+    text("going home from julefrokost", width/2, height/2);
     return;
   }
 
