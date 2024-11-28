@@ -24,6 +24,7 @@ function setup() {
   
   backgroundVideo = createVideo(['images/background.mp4'], videoLoaded);
   backgroundVideo.hide();
+  pointerEvents(NONE);
   
   document.addEventListener('touchstart', function() {
     if (backgroundVideo) backgroundVideo.play();
