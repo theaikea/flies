@@ -21,21 +21,15 @@ function preload() {
 function setup() {
   isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   canvas = createCanvas(windowWidth, windowHeight);
-  
   backgroundVideo = createVideo(['images/background.mp4'], videoLoaded);
   backgroundVideo.hide();
-  pointerEvents(NONE);
-  
   document.addEventListener('touchstart', function() {
     if (backgroundVideo) backgroundVideo.play();
   });
-  
   setInterval(addNewImage, 2000);
-  
   canvas.elt.addEventListener('touchstart', function(e) {
     e.preventDefault();
   }, { passive: false });
-  
   canvas.elt.addEventListener('contextmenu', function(e) {
     e.preventDefault();
   });
@@ -63,9 +57,14 @@ function draw() {
   if (backgroundVideo && backgroundVideo.loadedmetadata) {
     image(backgroundVideo, 0, 0, width, height);
   } else {
-    background(220);
+    background(0);
+    fill(255);
+    textSize(32);
+    textAlign(CENTER, CENTER);
+    text("klik på fluerne...", width/2, height/2);
+    return;
   }
-  
+
   displayedImages.forEach(img => {
     let imgWidth = flyImage.width * img.scale;
     let imgHeight = flyImage.height * img.scale;
@@ -91,7 +90,6 @@ function addNewImage() {
 
 function handleInteraction(x, y) {
   if (!x || !y) return;
-  
   for (let i = displayedImages.length - 1; i >= 0; i--) {
     let img = displayedImages[i];
     let imgWidth = flyImage.width * img.scale;
@@ -99,9 +97,7 @@ function handleInteraction(x, y) {
     let dx = x - (img.x + imgWidth / 2);
     let dy = y - (img.y + imgHeight / 2);
     let distance = sqrt(dx * dx + dy * dy);
-    
     let hitArea = isMobile ? imgWidth : imgWidth / 2;
-    
     if (distance < hitArea) {
       displayedImages.splice(i, 1);
       let sound = soundFiles[floor(random(soundFiles.length))];
