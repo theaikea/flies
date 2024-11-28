@@ -24,7 +24,7 @@ function preload() {
 function setup() {
   canvas = createCanvas(1024, 1024); // Fixed canvas size
   isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  setInterval(addNewImage, 2000);
+  setInterval(addNewImage, 500);
   loadingStartTime = millis(); // Set the start time for the loading screen
   canvas.elt.addEventListener('touchstart', function(e) {
     e.preventDefault();
@@ -40,7 +40,7 @@ function draw() {
   let bgHeight = 1024;
 
   // Handle the loading screen for 2 seconds
-  if (millis() - loadingStartTime < 2000) {
+  if (millis() - loadingStartTime < 1000) {
     // Draw black background for loading screen
     fill(0);
     rect(0, 0, bgWidth, bgHeight);
