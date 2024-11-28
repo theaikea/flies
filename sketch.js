@@ -1,15 +1,20 @@
 let flyImage;
-let backgroundVideo;
+let backgroundImage;
 let displayedImages = [];
 const minScale = 0.01, maxScale = 0.4;
 let soundFiles = [];
 const maxFlies = 50;
 let canvas;
 let isMobile;
-let videoContainer;
+let isLoading = true;
+let loadingStartTime;
 
 function preload() {
   flyImage = loadImage('images/fly.png');
+  backgroundImage = loadImage('images/background.jpg', () => {
+    isLoading = false;
+    loadingStartTime = millis(); // Set the start time for the loading screen
+  });
   soundFormats('mp3', 'wav');
   soundFiles = [
     loadSound('audio/flynoise1.mp3'),
@@ -22,23 +27,6 @@ function preload() {
 function setup() {
   isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   canvas = createCanvas(windowWidth, windowHeight);
-  
-  videoContainer = createDiv();
-  videoContainer.style('pointer-events', 'none');
-  videoContainer.style('position', 'absolute');
-  videoContainer.style('top', '0');
-  videoContainer.style('left', '0');
-  videoContainer.style('width', '100%');
-  videoContainer.style('height', '100%');
-  
-  backgroundVideo = createVideo(['images/background.mp4'], videoLoaded);
-  backgroundVideo.parent(videoContainer);
-  backgroundVideo.hide();
-  
-  document.addEventListener('touchstart', function() {
-    if (backgroundVideo) backgroundVideo.play();
-  });
-  
   setInterval(addNewImage, 2000);
   canvas.elt.addEventListener('touchstart', function(e) {
     e.preventDefault();
@@ -48,35 +36,23 @@ function setup() {
   });
 }
 
-function videoLoaded() {
-  backgroundVideo.size(width, height);
-  backgroundVideo.loop();
-  backgroundVideo.volume(0);
-  backgroundVideo.attribute('playsinline', '');
-  backgroundVideo.attribute('webkit-playsinline', '');
-  backgroundVideo.play().catch(function(error) {
-    console.log("Video play failed:", error);
-  });
-}
-
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  if (backgroundVideo) {
-    backgroundVideo.size(width, height);
-  }
 }
 
 function draw() {
-  if (backgroundVideo && backgroundVideo.loadedmetadata) {
-    image(backgroundVideo, 0, 0, width, height);
-  } else {
+  // Handle the loading screen
+  if (isLoading || millis() - loadingStartTime < 2000) {
     background(0);
     fill(255);
     textSize(32);
     textAlign(CENTER, CENTER);
-    text("going home from julefrokost", width/2, height/2);
+    text("klik på fluerne...", width / 2, height / 2);
     return;
   }
+
+  // Draw the main scene
+  image(backgroundImage, 0, 0, width, height);
 
   displayedImages.forEach(img => {
     let imgWidth = flyImage.width * img.scale;
