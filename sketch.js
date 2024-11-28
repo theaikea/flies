@@ -5,6 +5,7 @@ const minScale = 0.01, maxScale = 0.4;
 let soundFiles = [];
 const maxFlies = 50;
 let canvas;
+let isMobile;
 
 function preload() {
   flyImage = loadImage('images/fly.png');
@@ -18,27 +19,50 @@ function preload() {
 }
 
 function setup() {
-  canvas = createCanvas(1024, 1024);
-  backgroundVideo = createVideo('images/background.mp4', videoLoaded);
+  isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  canvas = createCanvas(windowWidth, windowHeight);
+  
+  backgroundVideo = createVideo(['images/background.mp4'], videoLoaded);
   backgroundVideo.hide();
+  
+  document.addEventListener('touchstart', function() {
+    if (backgroundVideo) backgroundVideo.play();
+  });
+  
   setInterval(addNewImage, 2000);
   
   canvas.elt.addEventListener('touchstart', function(e) {
     e.preventDefault();
-  }, false);
+  }, { passive: false });
+  
+  canvas.elt.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+  });
 }
 
 function videoLoaded() {
-  backgroundVideo.size(320, 240);
+  backgroundVideo.size(width, height);
   backgroundVideo.loop();
   backgroundVideo.volume(0);
   backgroundVideo.attribute('playsinline', '');
-  backgroundVideo.play();
+  backgroundVideo.attribute('webkit-playsinline', '');
+  backgroundVideo.play().catch(function(error) {
+    console.log("Video play failed:", error);
+  });
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  if (backgroundVideo) {
+    backgroundVideo.size(width, height);
+  }
 }
 
 function draw() {
-  if (backgroundVideo.loadedmetadata) {
+  if (backgroundVideo && backgroundVideo.loadedmetadata) {
     image(backgroundVideo, 0, 0, width, height);
+  } else {
+    background(220);
   }
   
   displayedImages.forEach(img => {
@@ -64,33 +88,38 @@ function addNewImage() {
   }
 }
 
-function handleInteraction() {
+function handleInteraction(x, y) {
+  if (!x || !y) return;
+  
   for (let i = displayedImages.length - 1; i >= 0; i--) {
     let img = displayedImages[i];
     let imgWidth = flyImage.width * img.scale;
     let imgHeight = flyImage.height * img.scale;
-    let dx = mouseX - (img.x + imgWidth / 2);
-    let dy = mouseY - (img.y + imgHeight / 2);
-    let angle = atan2(dy, dx) - img.rotation;
-    let xLocal = sqrt(dx * dx + dy * dy) * cos(angle);
-    let yLocal = sqrt(dx * dx + dy * dy) * sin(angle);
-    if (abs(xLocal) < imgWidth / 2 && abs(yLocal) < imgHeight / 2) {
+    let dx = x - (img.x + imgWidth / 2);
+    let dy = y - (img.y + imgHeight / 2);
+    let distance = sqrt(dx * dx + dy * dy);
+    
+    let hitArea = isMobile ? imgWidth : imgWidth / 2;
+    
+    if (distance < hitArea) {
       displayedImages.splice(i, 1);
-      soundFiles[floor(random(soundFiles.length))].play();
-      break;
+      let sound = soundFiles[floor(random(soundFiles.length))];
+      if (sound && sound.isLoaded()) {
+        sound.play();
+      }
+      return;
     }
   }
 }
 
 function mousePressed() {
-  handleInteraction();
+  handleInteraction(mouseX, mouseY);
   return false;
 }
 
 function touchStarted() {
-  let touch = touches[0];
-  mouseX = touch.x;
-  mouseY = touch.y;
-  handleInteraction();
+  if (touches.length > 0) {
+    handleInteraction(touches[0].x, touches[0].y);
+  }
   return false;
 }
