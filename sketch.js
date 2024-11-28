@@ -11,10 +11,7 @@ let loadingStartTime;
 
 function preload() {
   flyImage = loadImage('images/fly.png');
-  backgroundImage = loadImage('images/background.jpg', () => {
-    isLoading = false;
-    loadingStartTime = millis(); // Set the start time for the loading screen
-  });
+  backgroundImage = loadImage('images/background.jpg');
   soundFormats('mp3', 'wav');
   soundFiles = [
     loadSound('audio/flynoise1.mp3'),
@@ -28,6 +25,7 @@ function setup() {
   isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   canvas = createCanvas(windowWidth, windowHeight);
   setInterval(addNewImage, 2000);
+  loadingStartTime = millis(); // Set the start time for the loading screen
   canvas.elt.addEventListener('touchstart', function(e) {
     e.preventDefault();
   }, { passive: false });
@@ -41,8 +39,8 @@ function windowResized() {
 }
 
 function draw() {
-  // Handle the loading screen
-  if (isLoading || millis() - loadingStartTime < 2000) {
+  // Handle the loading screen for 2 seconds
+  if (millis() - loadingStartTime < 2000) {
     background(0);
     fill(255);
     textSize(32);
@@ -51,8 +49,12 @@ function draw() {
     return;
   }
 
-  // Draw the main scene
-  image(backgroundImage, 0, 0, width, height);
+  // Draw the main scene after 2 seconds
+  let bgWidth = backgroundImage.width;
+  let bgHeight = backgroundImage.height;
+  let bgX = (width - bgWidth) / 2; // Center the background image horizontally
+  let bgY = (height - bgHeight) / 2; // Center the background image vertically
+  image(backgroundImage, bgX, bgY, bgWidth, bgHeight);
 
   displayedImages.forEach(img => {
     let imgWidth = flyImage.width * img.scale;
