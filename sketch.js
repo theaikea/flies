@@ -22,8 +22,8 @@ function preload() {
 }
 
 function setup() {
+  canvas = createCanvas(1024, 1024); // Fixed canvas size
   isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  canvas = createCanvas(windowWidth, windowHeight);
   setInterval(addNewImage, 2000);
   loadingStartTime = millis(); // Set the start time for the loading screen
   canvas.elt.addEventListener('touchstart', function(e) {
@@ -34,14 +34,18 @@ function setup() {
   });
 }
 
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-}
-
 function draw() {
+  // Fixed dimensions for the background and loading screen
+  let bgWidth = 1024;
+  let bgHeight = 1024;
+
   // Handle the loading screen for 2 seconds
   if (millis() - loadingStartTime < 2000) {
-    background(0);
+    // Draw black background for loading screen
+    fill(0);
+    rect(0, 0, bgWidth, bgHeight);
+
+    // Loading text
     fill(255);
     textSize(32);
     textAlign(CENTER, CENTER);
@@ -49,13 +53,10 @@ function draw() {
     return;
   }
 
-  // Draw the main scene after 2 seconds
-  let bgWidth = backgroundImage.width;
-  let bgHeight = backgroundImage.height;
-  let bgX = (width - bgWidth) / 2; // Center the background image horizontally
-  let bgY = (height - bgHeight) / 2; // Center the background image vertically
-  image(backgroundImage, bgX, bgY, bgWidth, bgHeight);
+  // Draw the main scene
+  image(backgroundImage, 0, 0, bgWidth, bgHeight);
 
+  // Draw flies
   displayedImages.forEach(img => {
     let imgWidth = flyImage.width * img.scale;
     let imgHeight = flyImage.height * img.scale;
@@ -71,8 +72,8 @@ function draw() {
 function addNewImage() {
   if (displayedImages.length < maxFlies) {
     displayedImages.push({
-      x: random(width - flyImage.width * maxScale),
-      y: random(height - flyImage.height * maxScale),
+      x: random(1024 - flyImage.width * maxScale),
+      y: random(1024 - flyImage.height * maxScale),
       scale: random(minScale, maxScale),
       rotation: random(TWO_PI),
     });
