@@ -1,7 +1,7 @@
 let flyImage;
 let backgroundImage;
 let displayedImages = [];
-const minScale = 0.01, maxScale = 0.4;
+const minScale = 0.08, maxScale = 0.45;
 let soundFiles = [];
 const maxFlies = 50;
 let canvas;
@@ -40,7 +40,7 @@ function draw() {
   let bgHeight = 1024;
 
   // Handle the loading screen for 2 seconds
-  if (millis() - loadingStartTime < 1000) {
+  if (millis() - loadingStartTime < 2000) {
     // Draw black background for loading screen
     fill(0);
     rect(0, 0, bgWidth, bgHeight);
